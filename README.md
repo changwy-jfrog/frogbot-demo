@@ -17,7 +17,7 @@ End-to-end demo for [JFrog Frogbot](https://github.com/jfrog/frogbot), organized
 
 | Folder | Ecosystem | Vulnerable dep | CVE | Fix version |
 |---|---|---|---|---|
-| `sca/npm-lodash` | npm | `lodash@4.17.20` | CVE-2021-23337 | `4.17.21` |
+| `sca/npm-minimist` | npm | `minimist@1.2.5` | CVE-2021-44906 (prototype pollution) | `1.2.8` |
 | `sca/go-gin` | Go | `gin@v1.6.0` | CVE-2020-28483, CVE-2023-29401 | `v1.9.1+` |
 | `sca/maven-log4j` | Maven | `log4j-core@2.14.1` | CVE-2021-44228 (Log4Shell) | `2.17.1` |
 | `sca/pypi-requests` | PyPI | `requests==2.19.1` | CVE-2023-32681 | `2.32.0` |
@@ -48,7 +48,7 @@ This repo uses the **Frogbot GitHub App** (not workflow files). The app is insta
 | PR scan feedback | `git checkout -b test`, bump a vuln dep to a worse version, open a PR |
 | Secrets finding | Open a PR adding a new hard-coded key under `jas-secrets/` |
 | IaC finding | Modify `jas-iac/terraform/main.tf` and open a PR |
-| Contextual Analysis | Compare CA verdicts on `sca/npm-lodash/` vs `jas-contextual/` in the platform |
+| Contextual Analysis | See `jas-contextual/` — vulnerable `lodash.template()` is actually invoked |
 | License violation | Open a PR adding `mysql-connector-java` anywhere (after Policy is configured) |
 
 ## Notes

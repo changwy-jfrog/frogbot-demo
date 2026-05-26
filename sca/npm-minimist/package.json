@@ -1,0 +1,8 @@
+{
+  "name": "frogbot-demo-npm-minimist",
+  "version": "1.0.0",
+  "description": "Frogbot demo — vulnerable minimist, fixable to 1.2.8",
+  "dependencies": {
+    "minimist": "1.2.5"
+  }
+}

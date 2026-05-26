@@ -4,16 +4,13 @@ CA verifies whether a known CVE in a dependency is **actually reachable** from y
 
 ## What's in here
 
-- `package.json` — same vulnerable `lodash@4.17.20` as in `../sca/npm-lodash/`
+- `package.json` — vulnerable `lodash@4.17.20`
 - `reachable.js` — directly calls `_.template(userInput)`, the exact sink for CVE-2021-23337
 
 ## Expected outcome
 
-Contrast with `sca/npm-lodash/` — that folder has the vuln dep but no code calling `_.template`. Frogbot CA results should mark:
+JFrog Platform's Contextual Analysis result should mark CVE-2021-23337 as **Applicable** for this folder — because `reachable.js` invokes the vulnerable `_.template()` function with attacker-controlled input.
 
-| Folder | CVE-2021-23337 verdict |
-|---|---|
-| `sca/npm-lodash/` | **Not Applicable** (function not used) |
-| `jas-contextual/` | **Applicable** (sink directly invoked) |
+For contrast, the SCA case under `../sca/npm-minimist/` uses a *different* vulnerable package (`minimist@1.2.5`, CVE-2021-44906) — no shared CVE, so the two folders demonstrate different scenarios cleanly without producing duplicate fix PRs.
 
-This is the single biggest signal-to-noise improvement JAS gives over plain SCA.
+CA is the single biggest signal-to-noise improvement JAS gives over plain SCA: it tells you which of your SBOM vulnerabilities are actually reachable in your code.
