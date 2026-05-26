@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "JAS Contextual Analysis demo — vuln dep IS actually called",
   "dependencies": {
-    "lodash": "4.17.20"
+    "lodash": "^4.18.0"
   }
 }
