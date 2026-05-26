@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "Frogbot demo — vulnerable lodash, fixable to 4.17.21",
   "dependencies": {
-    "lodash": "4.17.20"
+    "lodash": "^4.18.0"
   }
 }
