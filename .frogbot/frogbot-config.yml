@@ -1,18 +1,18 @@
-params:
-  git:
-    repoName: frogbot-demo
-    branches:
-      - main
-  scan:
-    failOnSecurityIssues: false
-    projects:
-      - workingDirs:
-          - npm-lodash
-        installCommand: npm install
-      - workingDirs:
-          - go-gin
-      - workingDirs:
-          - maven-log4j
-      - workingDirs:
-          - pypi-requests
-        pipRequirementsFile: requirements.txt
+- params:
+    git:
+      repoName: frogbot-demo
+      branches:
+        - main
+    scan:
+      failOnSecurityIssues: false
+      projects:
+        - workingDirs:
+            - npm-lodash
+          installCommand: npm install
+        - workingDirs:
+            - go-gin
+        - workingDirs:
+            - maven-log4j
+        - workingDirs:
+            - pypi-requests
+          pipRequirementsFile: requirements.txt
