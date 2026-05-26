@@ -5,14 +5,23 @@
         - main
     scan:
       failOnSecurityIssues: false
+      includeAllVulnerabilities: true
+      # SCA targets — Frogbot needs one entry per manifest dir.
+      # JAS scans (secrets / IaC / SAST / CA) run across the whole repo
+      # regardless of these entries.
       projects:
         - workingDirs:
-            - npm-lodash
+            - sca/npm-lodash
           installCommand: npm install
         - workingDirs:
-            - go-gin
+            - sca/go-gin
         - workingDirs:
-            - maven-log4j
+            - sca/maven-log4j
         - workingDirs:
-            - pypi-requests
+            - sca/pypi-requests
           pipRequirementsFile: requirements.txt
+        - workingDirs:
+            - jas-contextual
+          installCommand: npm install
+        - workingDirs:
+            - license-maven-gpl

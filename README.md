@@ -1,40 +1,58 @@
 # frogbot-demo
 
-Multi-ecosystem demo for [JFrog Frogbot](https://github.com/jfrog/frogbot) — scans PRs and creates fix PRs for vulnerable dependencies across **npm, Go, Maven, PyPI**.
+End-to-end demo for [JFrog Frogbot](https://github.com/jfrog/frogbot), organized by Frogbot capability rather than by ecosystem. Each top-level folder targets one Frogbot feature so you can isolate what each scanner does.
 
-## What's inside
+## Capabilities covered
 
-| Folder | Ecosystem | Vulnerable dep | Known CVE | Fix |
+| Folder | Frogbot feature | Requires |
+|---|---|---|
+| [`sca/`](sca/) | SCA — vulnerable deps → auto fix PR | Xray |
+| [`jas-secrets/`](jas-secrets/) | JAS — hard-coded secrets detection | Advanced Security |
+| [`jas-iac/`](jas-iac/) | JAS — IaC misconfiguration (Terraform, K8s) | Advanced Security |
+| [`jas-sast/`](jas-sast/) | JAS — SAST (SQLi, XSS, eval, command injection) | Advanced Security |
+| [`jas-contextual/`](jas-contextual/) | JAS — Contextual Analysis (reachability) | Advanced Security |
+| [`license-maven-gpl/`](license-maven-gpl/) | License compliance (banned licenses) | Xray Watch + Policy |
+
+## SCA cases at a glance
+
+| Folder | Ecosystem | Vulnerable dep | CVE | Fix version |
 |---|---|---|---|---|
-| `npm-lodash/` | npm | `lodash@4.17.20` | CVE-2021-23337 (command injection in `template`) | `4.17.21` |
-| `go-gin/` | Go | `github.com/gin-gonic/gin@v1.6.0` | CVE-2020-28483, CVE-2023-29401 | `v1.9.1+` |
-| `maven-log4j/` | Maven | `org.apache.logging.log4j:log4j-core:2.14.1` | CVE-2021-44228 (Log4Shell) | `2.17.1` |
-| `pypi-requests/` | PyPI | `requests==2.19.1` | CVE-2023-32681 (Proxy-Authorization leak) | `2.32.0` |
+| `sca/npm-lodash` | npm | `lodash@4.17.20` | CVE-2021-23337 | `4.17.21` |
+| `sca/go-gin` | Go | `gin@v1.6.0` | CVE-2020-28483, CVE-2023-29401 | `v1.9.1+` |
+| `sca/maven-log4j` | Maven | `log4j-core@2.14.1` | CVE-2021-44228 (Log4Shell) | `2.17.1` |
+| `sca/pypi-requests` | PyPI | `requests==2.19.1` | CVE-2023-32681 | `2.32.0` |
 
-Each manifest uses **real, resolvable versions** so Frogbot's SBOM scan succeeds and a fix PR can be generated.
+All versions are real and resolvable so SBOM generation succeeds.
 
-## Required GitHub secrets
+## How Frogbot is wired here
 
-Set these in repo Settings → Secrets and variables → Actions:
+This repo uses the **Frogbot GitHub App** (not workflow files). The app is installed on the repo and reads `.frogbot/frogbot-config.yml` to know which folders to scan.
 
-- `JF_URL` — `https://changwy2.jfrog.io`
-- `JF_ACCESS_TOKEN` — JFrog Platform access token with Xray read + (optionally) write to the relevant repos
+### One-time setup
 
-`JF_GIT_TOKEN` is wired to the auto-provided `GITHUB_TOKEN`.
+1. **Install the app** — [github.com/apps/frogbot](https://github.com/apps/frogbot) → Install → select `changwy-jfrog/frogbot-demo`.
+2. **JFrog credentials** — secrets `JF_URL` and `JF_ACCESS_TOKEN` are set on the repo (or wired via the App's JFrog pairing flow).
+3. **License demo only** — create a Watch + Policy in JFrog Platform that bans `GPL-*` licenses (see [`license-maven-gpl/README.md`](license-maven-gpl/README.md)).
 
-For the PR-scan workflow, create a GitHub Environment named **`frogbot`** (Settings → Environments → New) and require manual approval — that's the standard Frogbot pattern to prevent untrusted PRs from auto-scanning.
+### Triggering scans
 
-## Workflows
+- **PR scan** — open a PR, Frogbot scans the diff and comments findings on the PR.
+- **Repository scan** — runs on schedule from JFrog Platform; opens fix PRs for vulnerable SCA deps.
+- **Manual** — JFrog Platform → Frogbot → "Scan now" against `main`.
 
-- `.github/workflows/frogbot-scan-repository.yml` — daily + manual run; opens fix PRs against `main`.
-- `.github/workflows/frogbot-scan-pull-request.yml` — runs on every PR; comments scan results.
+## Trying each case
 
-## Config
+| Want to see... | Do this |
+|---|---|
+| A fix PR auto-opened | Wait for the daily repo scan, or trigger from JFrog UI |
+| PR scan feedback | `git checkout -b test`, bump a vuln dep to a worse version, open a PR |
+| Secrets finding | Open a PR adding a new hard-coded key under `jas-secrets/` |
+| IaC finding | Modify `jas-iac/terraform/main.tf` and open a PR |
+| Contextual Analysis | Compare CA verdicts on `sca/npm-lodash/` vs `jas-contextual/` in the platform |
+| License violation | Open a PR adding `mysql-connector-java` anywhere (after Policy is configured) |
 
-`.frogbot/frogbot-config.yml` lists the four working dirs so each project is scanned independently.
+## Notes
 
-## Try it
-
-1. Add secrets (above).
-2. Actions tab → **Frogbot Scan Repository** → **Run workflow**.
-3. Watch fix PRs appear, one per ecosystem.
+- Versions in `sca/` and `jas-contextual/` are intentionally chosen so Frogbot can resolve them via public registries — no Artifactory remote required.
+- All "secrets" in `jas-secrets/` are public example values (`AKIAIOSFODNN7EXAMPLE` etc.) that match patterns but don't authenticate to anything.
+- JAS folders need a JFrog subscription that includes Advanced Security; Xray-only accounts will see SCA + license results but no Secrets/IaC/SAST/CA findings.

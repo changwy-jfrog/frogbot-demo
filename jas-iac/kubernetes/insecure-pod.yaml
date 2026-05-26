@@ -1,0 +1,28 @@
+# [DEMO] JAS IaC — insecure Kubernetes pod manifest.
+# Frogbot should flag: privileged, hostNetwork, no resource limits, latest tag.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frogbot-demo-insecure
+  labels:
+    app: demo
+spec:
+  hostNetwork: true
+  hostPID: true
+  containers:
+    - name: app
+      image: nginx:latest
+      securityContext:
+        privileged: true
+        allowPrivilegeEscalation: true
+        runAsUser: 0
+        readOnlyRootFilesystem: false
+        capabilities:
+          add:
+            - SYS_ADMIN
+            - NET_ADMIN
+      ports:
+        - containerPort: 80
+      env:
+        - name: DB_PASSWORD
+          value: "Password123!"
